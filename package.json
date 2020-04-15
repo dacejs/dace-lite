@@ -1,6 +1,6 @@
 {
   "name": "dace-lite",
-  "version": "1.0.1-alpha.1",
+  "version": "1.0.1-alpha.2",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -71,5 +71,10 @@
   "lint-staged": {
     "src/**/*.{ts,js,tsx,jsx}": "eslint"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.6",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
 }
