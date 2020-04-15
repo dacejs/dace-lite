@@ -75,7 +75,8 @@ export default ({
   };
 
   if (isNode) {
-    config.entry = [path.resolve(__dirname, '../runtime/server.ts')];
+    // config.entry = [path.resolve(__dirname, '../runtime/server.js')];
+    config.entry = [path.resolve('src/runtime/server.ts')];
 
     config.output = {
       filename: 'server.js',
@@ -88,6 +89,7 @@ export default ({
     };
 
     config.externals = [
+      // modules that should not be bundled
       nodeExternals({
         whitelist: [
           webpackHotPoll,
@@ -118,13 +120,12 @@ export default ({
         // StartServerPlugin 会出 DeprecationWarning: Buffer()
         new StartServerPlugin({
           name: 'server.js'
-        }),
+        }) // ,
         // 不监视编译输出目录，避免重新压缩死循环
-        new webpack.WatchIgnorePlugin(['prd', 'dist'])
+        // new webpack.WatchIgnorePlugin(['prd', 'dist'])
       ];
 
       config.entry.unshift(webpackHotPoll);
-      config.plugins.push(new webpack.HotModuleReplacementPlugin());
     }
   }
 
@@ -157,7 +158,7 @@ export default ({
         port: 3001,
         quiet: false,
         watchOptions: {
-          ignored: /node_modules/
+          // ignored: /node_modules/
         }
       };
 
