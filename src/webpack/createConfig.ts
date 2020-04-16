@@ -1,84 +1,170 @@
+import fs from 'fs';
 import path from 'path';
+import WebpackBar from 'webpackbar';
 import nodeExternals from 'webpack-node-externals';
 import StartServerPlugin from 'start-server-webpack-plugin';
+import { CleanWebpackPlugin } from 'clean-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import { StatsWriterPlugin } from 'webpack-stats-plugin';
 import getEntries from '../utils/get-entries';
 
 export default ({
   webpack,
   daceConfig,
   target = 'web',
-  isDev = true // ,
-  // program = {}
-}) => {
+  isDev = true,
+  program = {}
+}: CreateConfigOptions) => {
   const {
     DACE_HOST,
-    DACE_PORT // ,
-    // NODE_PATH = '',
-    // DACE_PUBLIC_PATH,
-    // DACE_VENDORS,
-    // DACE_LONG_TERM_CACHING,
-    // DACE_LONG_TERM_CACHING_LENGTH,
-    // // DACE_PATH_ROOT,
-    // DACE_SERVER_MINIMIZE,
-    // DACE_CLIENT_MINIMIZE,
-    // DACE_POLYFILL,
-    // DACE_HMR,
-    // DACE_BABEL_COMPILE_MODULES,
-    // DACE_PATH_BABEL_RC,
-    // DACE_PATH_ESLINT_RC,
-    // DACE_PATH_POSTCSS_RC,
-    // DACE_PATH_NODE_MODULES,
-    // DACE_PATH_CLIENT_ENTRY,
-    // DACE_PATH_SERVER_ENTRY,
-    // DACE_PATH_CLIENT_DIST,
-    // DACE_PATH_SERVER_DIST,
-    // DACE_INSPECT_BRK,
-    // DACE_INSPECT
+    DACE_PORT,
+    DACE_PUBLIC_PATH,
+    DACE_VENDORS,
+    DACE_LONG_TERM_CACHING,
+    DACE_LONG_TERM_CACHING_LENGTH,
+    DACE_SERVER_MINIMIZE,
+    DACE_CLIENT_MINIMIZE,
+    DACE_PATH_POSTCSS_RC,
+    DACE_PATH_SERVER_ENTRY,
+    DACE_PATH_CLIENT_DIST,
+    DACE_PATH_SERVER_DIST,
+    DACE_PATH_STATS_JSON
   } = process.env;
+  const devServerPort = Number(DACE_PORT) + 1;
   const isNode = target === 'node';
   const isWeb = target === 'web';
   const webpackHotPoll = 'webpack/hot/poll?300';
-  const getHash = (hash) => {
-    // if (DACE_LONG_TERM_CACHING === 'true') {
-    //   return `.[${hash}:${DACE_LONG_TERM_CACHING_LENGTH}]`;
-    // }
+  const getHash = (hash: string) => {
+    if (DACE_LONG_TERM_CACHING === 'true') {
+      return `.[${hash}:${DACE_LONG_TERM_CACHING_LENGTH}]`;
+    }
     return '';
   };
 
   // 将 process.env 中所有以 DACE_ 开头的变量传递到代码运行时环境
   const daceEnv = Object.keys(process.env)
     .filter((key) => key.startsWith('DACE_'))
-    .reduce((envs, key) => {
+    .reduce<{
+      [key: string]: string
+    }>((envs, key) => {
       envs[`process.env.${key}`] = JSON.stringify(process.env[key]);
       return envs;
     }, {});
 
+  // 获取 postcss 配置
+  const hasPostcssRc = fs.existsSync(DACE_PATH_POSTCSS_RC);
+  const mainPostcssOptions: any = { ident: 'postcss' };
+  if (hasPostcssRc) {
+    if (isWeb) {
+      console.log('Using custom postcss.config.js');
+    }
+    // 只能指定 postcss.config.js 所在的目录
+    mainPostcssOptions.config = {
+      path: path.dirname(DACE_PATH_POSTCSS_RC)
+    };
+  } else {
+    mainPostcssOptions.plugins = [
+    ];
+  }
+
   let config: any = {
     mode: isDev ? 'development' : 'production',
-    // context: process.cwd(),
     target,
     devtool: 'none',
     resolve: {
-      // modules: ['node_modules', DACE_PATH_NODE_MODULES].concat((NODE_PATH).split(path.delimiter).filter(Boolean)),
       extensions: ['.js', '.jsx', '.ts', '.tsx']
     },
     plugins: [
       new webpack.DefinePlugin(daceEnv)
     ],
     module: {
-      rules: [{
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      }]
+      rules: [
+        {
+          test: /\.tsx?$/,
+          use: 'ts-loader',
+          exclude: /node_modules/
+        },
+        {
+          exclude: [
+            /\.html$/,
+            /\.(js|jsx|mjs)$/,
+            /\.(ts|tsx)$/,
+            /\.(vue)$/,
+            /\.(less)$/,
+            /\.(re)$/,
+            /\.(s?css|sass)$/,
+            /\.json$/,
+            /\.bmp$/,
+            /\.gif$/,
+            /\.jpe?g$/,
+            /\.png$/
+          ],
+          loader: require.resolve('file-loader'),
+          options: {
+            name: `media/[name]${getHash('hash')}.[ext]`,
+            emitFile: true
+          }
+        },
+        // 'url' loader works like 'file' loader except that it embeds assets
+        // smaller than specified limit in bytes as data URLs to avoid requests.
+        // A missing `test` is equivalent to a match.
+        {
+          test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+          loader: require.resolve('url-loader'),
+          options: {
+            limit: 10000,
+            name: `media/[name]${getHash('hash')}.[ext]`,
+            emitFile: true
+          }
+        },
+        {
+          test: /\.css$/,
+          // eslint-disable-next-line no-nested-ternary
+          use: isNode ? [
+            {
+              loader: require.resolve('css-loader'),
+              options: {
+                importLoaders: 1
+              }
+            }
+          ] : (isDev ? [
+            require.resolve('style-loader'),
+            {
+              loader: require.resolve('css-loader'),
+              options: {
+                importLoaders: 1
+              }
+            },
+            {
+              loader: require.resolve('postcss-loader'),
+              options: mainPostcssOptions
+            }
+          ] : [
+            MiniCssExtractPlugin.loader,
+            {
+              loader: require.resolve('css-loader'),
+              options: {
+                importLoaders: 1,
+                modules: false
+              }
+            },
+            {
+              loader: require.resolve('postcss-loader'),
+              options: mainPostcssOptions
+            }
+          ])
+        }
+      ]
     }
   };
 
   if (isNode) {
     // config.entry = [path.resolve(__dirname, '../runtime/server.js')];
-    config.entry = [path.resolve('src/runtime/server.ts')];
+    config.entry = [DACE_PATH_SERVER_ENTRY];
 
     config.output = {
+      path: DACE_PATH_SERVER_DIST,
+      publicPath: isDev ? `http://${DACE_HOST}:${devServerPort}/` : '/',
       filename: 'server.js',
       libraryTarget: 'commonjs2'
     };
@@ -110,6 +196,8 @@ export default ({
       })
     ];
 
+    config.optimization = { minimize: DACE_SERVER_MINIMIZE === 'true' };
+
     if (isDev) {
       config.watch = true;
 
@@ -132,31 +220,78 @@ export default ({
   if (isWeb) {
     config.entry = getEntries();
     config.output = {
-      path: path.resolve('prd'),
+      path: DACE_PATH_CLIENT_DIST,
       libraryTarget: 'var'
+    };
+
+    config.plugins = [
+      ...config.plugins,
+      new CleanWebpackPlugin({
+        cleanOnceBeforeBuildPatterns: [DACE_PATH_CLIENT_DIST, DACE_PATH_SERVER_DIST]
+      }),
+      new StatsWriterPlugin({
+        filename: path.basename(DACE_PATH_STATS_JSON),
+        stats: {
+          all: false,
+          assets: true,
+          publicPath: true
+        }
+      })
+    ];
+
+    const vendorPattern = new RegExp(`(${DACE_VENDORS})`);
+    config.optimization = {
+      minimize: false,
+      splitChunks: {
+        cacheGroups: {
+          // 禁用 cacheGroups(test/priority/reuseExistingChunk)默认配置
+          default: false,
+
+          // 禁用 vendors
+          vendors: false,
+
+          // 打包 vendor.js
+          vendor: {
+            name: 'vendor',
+            test: vendorPattern,
+            chunks: 'all',
+            enforce: true
+          },
+
+          // 打包 styles.css
+          styles: {
+            name: 'styles',
+            test: /\.(css|less|scss)$/,
+            chunks: 'all',
+            minChunks: 2,
+            priority: 10,
+            reuseExistingChunk: true,
+            enforce: true
+          }
+
+        }
+      }
     };
 
     if (isDev) {
       config.output = {
         ...config.output,
-        publicPath: 'http://localhost:3001/',
+        publicPath: `http://${DACE_HOST}:${devServerPort}/`,
         pathinfo: true,
         filename: 'js/[name].js',
         chunkFilename: 'js/[name].chunk.js'
       };
 
       config.devServer = {
-        disableHostCheck: true,
         headers: {
           'Access-Control-Allow-Origin': `http://${DACE_HOST}:${DACE_PORT}`,
           'Access-Control-Allow-Credentials': true
         },
         host: '0.0.0.0',
         hot: true,
-        noInfo: false,
-        overlay: false,
-        port: 3001,
+        port: devServerPort,
         quiet: false,
+        writeToDisk: (filepath: string) => filepath.endsWith(path.basename(DACE_PATH_STATS_JSON)),
         watchOptions: {
           // ignored: /node_modules/
         }
@@ -164,9 +299,44 @@ export default ({
 
       config.plugins = [
         ...config.plugins,
-        new webpack.HotModuleReplacementPlugin()
+        new webpack.HotModuleReplacementPlugin({
+          multiStep: true
+        })
       ];
+    } else { // web-build
+      config.output = {
+        ...config.output,
+        publicPath: DACE_PUBLIC_PATH,
+        filename: `js/[name]${getHash('chunkhash')}.js`,
+        chunkFilename: `js/[name]${getHash('chunkhash')}.chunk.js`
+      };
+
+      config.plugins = [
+        ...config.plugins,
+        // Extract our CSS into a files.
+        new MiniCssExtractPlugin({
+          filename: `css/[name]${getHash('contenthash')}.css`,
+          chunkFilename: `css/[name].[id]${getHash('contenthash')}.css` // ,
+          // allChunks: true because we want all css to be included in the main
+          // css bundle when doing code splitting to avoid FOUC:
+          // https://github.com/facebook/create-react-app/issues/2415
+          // allChunks: true
+        }),
+        new webpack.HashedModuleIdsPlugin() // ,
+        // new webpack.optimize.AggressiveMergingPlugin()
+      ];
+      config.optimization = { ...config.optimization, minimize: DACE_CLIENT_MINIMIZE === 'true' };
     }
+  }
+
+  if (isDev && !program.verbose) {
+    config.plugins = [
+      ...config.plugins,
+      new WebpackBar({
+        color: target === 'web' ? '#f5a623' : '#9013fe',
+        name: target === 'web' ? 'client' : 'server'
+      })
+    ];
   }
 
   // 项目中的配置文件优先级最高

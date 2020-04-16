@@ -60,7 +60,7 @@ Object.keys(daceConfig)
 // 最后使用 dace 默认 dotenv 兜底
 Object.keys(defaultEnv).forEach((key) => {
   if (!(key in process.env)) {
-    process.env[key] = defaultEnv[key];
+    process.env[key] = (defaultEnv as any)[key];
   }
 });
 
@@ -69,5 +69,5 @@ Object.keys(defaultEnv).forEach((key) => {
 Object.keys(process.env)
   .filter((key: string) => key.startsWith('DACE_PATH_'))
   .forEach((key: string) => {
-    process.env[key] = resolveApp(process.env[key]);
+    process.env[key] = resolveApp((process.env as any)[key]);
   });

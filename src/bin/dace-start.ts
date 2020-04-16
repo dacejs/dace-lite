@@ -1,6 +1,5 @@
 import fs from 'fs';
 import program from 'commander';
-import chalk from 'chalk';
 import DevServer from 'webpack-dev-server';
 import webpack from 'webpack';
 import createConfig from '../webpack/createConfig';
@@ -20,7 +19,7 @@ interface DaceConfigOptions {
 
 program
   // .option('-s, --silent', '禁用所有输出信息')
-  // .option('-v, --verbose', '显示详细日志信息')
+  .option('-v, --verbose', '显示详细日志信息')
   .parse(process.argv);
 
 process.noDeprecation = true; // 关闭告警信息，避免对进度条显示产生干扰
@@ -43,6 +42,7 @@ function main() {
 
   if (fs.existsSync(DACE_PATH_CONFIG)) {
     try {
+      // eslint-disable-next-line global-require
       daceConfig = require(DACE_PATH_CONFIG);
     } catch (e) {
       console.error('Invalid dace.config.js file.', e);
@@ -50,8 +50,8 @@ function main() {
     }
   }
 
-  const clientConfig = createConfig({ webpack, daceConfig, target: 'web', isDev: true });
-  const serverConfig = createConfig({ webpack, daceConfig, target: 'node', isDev: true });
+  const clientConfig = createConfig({ webpack, daceConfig, target: 'web', isDev: true, program });
+  const serverConfig = createConfig({ webpack, daceConfig, target: 'node', isDev: true, program });
 
   // Compile our assets with webpack
   const clientCompiler = compile(clientConfig);

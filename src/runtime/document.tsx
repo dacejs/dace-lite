@@ -11,15 +11,16 @@
  */
 
 export default ({
-  head = {},
-  markup = '',
-  state = '{}',
-  styleTags = '',
-  scriptTags = ''
-}) => {
-  const print = (key: string) => {
-    if (head[key] && typeof head[key].toString === 'function') {
-      return head[key].toString();
+  head,
+  markup,
+  state,
+  styleTags,
+  scriptTags
+}: DocumentOptions): string => {
+  const print = (key: string): string => {
+    const meta = (head as any)[key];
+    if (meta && typeof meta.toString === 'function') {
+      return meta.toString();
     }
     return '';
   };

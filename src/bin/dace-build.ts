@@ -3,9 +3,8 @@ import chalk from 'chalk';
 import webpack from 'webpack';
 import program from 'commander';
 import clearConsole from 'react-dev-utils/clearConsole';
-import { measureFileSizesBeforeBuild, printFileSizesAfterBuild } from 'react-dev-utils/FileSizeReporter';
+import { measureFileSizesBeforeBuild, printFileSizesAfterBuild, OpaqueFileSizes } from 'react-dev-utils/FileSizeReporter';
 import formatWebpackMessages from 'react-dev-utils/formatWebpackMessages';
-import logger from '../utils/logger';
 import createConfig from '../webpack/createConfig';
 
 // TODO 提取到 index.d.ts
@@ -37,21 +36,22 @@ function compile(config: webpack.Configuration, cb: Function) {
   });
 }
 
-function build(previousFileSizes) {
+function build(previousFileSizes: OpaqueFileSizes) {
   let daceConfig = {};
 
   if (fs.existsSync(DACE_PATH_CONFIG)) {
     try {
+      // eslint-disable-next-line global-require
       daceConfig = require(DACE_PATH_CONFIG);
     } catch (e) {
       clearConsole();
-      logger.error(`Invalid dace.config.js file. ${e}`);
+      console.error(`Invalid dace.config.js file. ${e}`);
       process.exit(1);
     }
   }
 
-  const clientConfig = createConfig({ webpack, daceConfig, target: 'web', isDev: false });
-  const serverConfig = createConfig({ webpack, daceConfig, target: 'node', isDev: false });
+  const clientConfig = createConfig({ webpack, daceConfig, target: 'web', isDev: false, program });
+  const serverConfig = createConfig({ webpack, daceConfig, target: 'node', isDev: false, program });
 
   console.log('Creating an optimized production build...');
   if (program.verbose) {
@@ -61,7 +61,7 @@ function build(previousFileSizes) {
   console.log('Compiling client...');
 
   return new Promise((resolve, reject) => {
-    compile(clientConfig, (clientError, clientStats) => {
+    compile(clientConfig, (clientError: Error, clientStats: webpack.Stats) => {
       if (clientError) {
         reject(clientError);
       }
@@ -78,9 +78,9 @@ function build(previousFileSizes) {
       }
       console.log('Compiling server...');
 
-      compile(serverConfig, (serverError, serverStats) => {
+      compile(serverConfig, (serverError: Error, serverStats: webpack.Stats) => {
         if (serverError) {
-          reject(serverError);
+          return reject(serverError);
         }
         const serverMessages = formatWebpackMessages(serverStats.toJson({}, true));
         if (serverMessages.errors.length > 0) {
@@ -96,14 +96,16 @@ function build(previousFileSizes) {
           }
         });
       });
+
+      return null;
     });
   });
 }
 
 measureFileSizesBeforeBuild(DACE_PATH_CLIENT_DIST)
-  .then((previousFileSizes) => build(previousFileSizes))
+  .then((previousFileSizes: OpaqueFileSizes) => build(previousFileSizes))
   .then(
-    ({ stats, previousFileSizes, warnings }) => {
+    ({ stats, previousFileSizes, warnings }: any) => {
       if (warnings.length > 0) {
         console.log(chalk.yellow('Compiled with warnings.\n'));
         console.log(warnings.join('\n\n'));
