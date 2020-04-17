@@ -88,3 +88,8 @@ interface DaceDefaultEnv {
   // 客户端编译输出 stats 文件位置
   DACE_PATH_STATS_JSON: string;
 }
+
+
+interface DaceConfigOptions {
+  modify?: Function
+}

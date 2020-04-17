@@ -8,15 +8,15 @@ import formatWebpackMessages from 'react-dev-utils/formatWebpackMessages';
 import createConfig from '../webpack/createConfig';
 
 // TODO 提取到 index.d.ts
-declare global {
-  namespace NodeJS {
-    interface Process {
-      noDeprecation: boolean;
-    }
-  }
-}
+// declare global {
+//   namespace NodeJS {
+//     interface Process {
+//       noDeprecation: boolean;
+//     }
+//   }
+// }
 
-process.noDeprecation = true; // 关闭告警信息，避免对进度条显示产生干扰
+// process.noDeprecation = true; // 关闭告警信息，避免对进度条显示产生干扰
 
 program.parse(process.argv);
 

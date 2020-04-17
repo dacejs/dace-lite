@@ -5,24 +5,20 @@ import webpack from 'webpack';
 import createConfig from '../webpack/createConfig';
 
 // TODO 提取到 index.d.ts
-declare global {
-  namespace NodeJS {
-    interface Process {
-      noDeprecation: boolean;
-    }
-  }
-}
-
-interface DaceConfigOptions {
-  modify?: Function
-}
+// declare global {
+//   namespace NodeJS {
+//     interface Process {
+//       noDeprecation: boolean;
+//     }
+//   }
+// }
 
 program
   // .option('-s, --silent', '禁用所有输出信息')
   .option('-v, --verbose', '显示详细日志信息')
   .parse(process.argv);
 
-process.noDeprecation = true; // 关闭告警信息，避免对进度条显示产生干扰
+// process.noDeprecation = true; // 关闭告警信息，避免对进度条显示产生干扰
 
 // 捕获 webpack 执行过程中的错误
 function compile(config: webpack.Configuration) {

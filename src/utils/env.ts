@@ -9,12 +9,6 @@ import fs from 'fs';
 import defaultEnv from './defaultEnv';
 import resolveApp from './resolveApp';
 
-// 不存在 NODE_ENV 时为其设置默认值 `local`
-if (!('NODE_ENV' in process.env)) {
-  console.warn('The NODE_ENV environment variable is required but was not specified.');
-  process.env.NODE_ENV = 'local';
-}
-
 const {
   NODE_ENV,
   PROFILE,

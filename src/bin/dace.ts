@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 import program from 'commander';
-import '../utils/env';
 import '../utils/check-node-version';
+import '../utils/check-env-profile';
+import '../utils/env';
 
 program
   .option('-s, --silent', '禁用所有输出信息')

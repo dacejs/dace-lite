@@ -4,7 +4,7 @@ import { renderToString } from 'react-dom/server';
 import { Provider } from 'react-redux';
 import serialize from 'serialize-javascript';
 import Express from 'express';
-import createStore from './createStore';
+import createStore from '../createStore';
 import document from './document';
 
 interface SsrMiddlewareOptions {
