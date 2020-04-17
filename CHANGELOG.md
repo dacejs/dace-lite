@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.4](https://github.com/dacejs/dace-lite/compare/v1.0.3...v1.0.4) (2020-04-17)
+
+
+### Features
+
+* 增加 inspec 调试配置 ([94f5b55](https://github.com/dacejs/dace-lite/commit/94f5b55a9d61a4a25243ce2daa06cf8cf027794e))
+
 ### [1.0.3](https://github.com/dacejs/dace-lite/compare/v1.0.2...v1.0.3) (2020-04-16)
 
 
