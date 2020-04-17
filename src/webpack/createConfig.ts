@@ -28,7 +28,9 @@ export default ({
     DACE_PATH_SERVER_ENTRY,
     DACE_PATH_CLIENT_DIST,
     DACE_PATH_SERVER_DIST,
-    DACE_PATH_STATS_JSON
+    DACE_PATH_STATS_JSON,
+    DACE_INSPECT_BRK,
+    DACE_INSPECT
   } = process.env;
   const devServerPort = Number(DACE_PORT) + 1;
   const isNode = target === 'node';
@@ -159,12 +161,10 @@ export default ({
   };
 
   if (isNode) {
-    // config.entry = [path.resolve(__dirname, '../runtime/server.js')];
     config.entry = [DACE_PATH_SERVER_ENTRY];
 
     config.output = {
       path: DACE_PATH_SERVER_DIST,
-      publicPath: isDev ? `http://${DACE_HOST}:${devServerPort}/` : '/',
       filename: 'server.js',
       libraryTarget: 'commonjs2'
     };
@@ -177,8 +177,10 @@ export default ({
     config.externals = [
       // modules that should not be bundled
       nodeExternals({
+        // 需要被打包到 bundle.js 的模块名称白名单
         whitelist: [
           webpackHotPoll,
+          // /ssrMiddleware/,
           /\.(eot|woff|woff2|ttf|otf)$/,
           /\.(svg|png|jpg|jpeg|gif|ico)$/,
           /\.(mp4|mp3|ogg|swf|webp)$/,
@@ -188,6 +190,7 @@ export default ({
     ];
 
     config.plugins = [
+      ...config.plugins,
       // 将定义环境变量传递到运行时环境
       // new webpack.DefinePlugin(daceEnv),
       // 防止 node 编译时打成多个包
@@ -200,6 +203,16 @@ export default ({
 
     if (isDev) {
       config.watch = true;
+      config.entry.unshift(webpackHotPoll);
+
+      const nodeArgs = ['-r', 'source-map-support/register'];
+
+      // Passthrough --inspect and --inspect-brk flags (with optional [host:port] value) to node
+      if (DACE_INSPECT_BRK) {
+        nodeArgs.push(DACE_INSPECT_BRK);
+      } else if (DACE_INSPECT) {
+        nodeArgs.push(DACE_INSPECT);
+      }
 
       config.plugins = [
         ...config.plugins,
@@ -207,13 +220,12 @@ export default ({
         // Supress errors to console (we use our own logger)
         // StartServerPlugin 会出 DeprecationWarning: Buffer()
         new StartServerPlugin({
-          name: 'server.js'
-        }) // ,
+          name: 'server.js',
+          nodeArgs
+        }),
         // 不监视编译输出目录，避免重新压缩死循环
-        // new webpack.WatchIgnorePlugin(['prd', 'dist'])
+        new webpack.WatchIgnorePlugin([DACE_PATH_CLIENT_DIST, DACE_PATH_SERVER_DIST])
       ];
-
-      config.entry.unshift(webpackHotPoll);
     }
   }
 

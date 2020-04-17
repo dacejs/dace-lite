@@ -37,7 +37,7 @@ function compile(config: webpack.Configuration) {
 }
 
 function main() {
-  const { DACE_PATH_CONFIG } = process.env;
+  const { DACE_PATH_CONFIG, DACE_PORT } = process.env;
   let daceConfig:DaceConfigOptions = {};
 
   if (fs.existsSync(DACE_PATH_CONFIG)) {
@@ -71,7 +71,7 @@ function main() {
   const clientDevServer = new DevServer(clientCompiler, clientConfig.devServer);
 
   // Start Webpack-dev-server
-  const devPort = 3001;
+  const devPort = Number(DACE_PORT) + 1;
   clientDevServer.listen(devPort, (err: any) => {
     if (err) {
       console.error(err);
