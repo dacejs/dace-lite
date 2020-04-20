@@ -5,6 +5,10 @@ import DevServer from 'webpack-dev-server';
 import webpack from 'webpack';
 import createConfig from '../webpack/createConfig';
 
+// interface DaceConfigOptions {
+//   modify?: Function
+// }
+
 program
   .option('-v, --verbose', '显示详细日志信息')
   .parse(process.argv);
@@ -24,7 +28,7 @@ function compile(config: webpack.Configuration) {
 function main() {
   const { DACE_PORT } = process.env;
   const daceConfigFile = path.resolve('dace.config.js');
-  let daceConfig:DaceConfigOptions = {};
+  let daceConfig = {};
 
   if (fs.existsSync(daceConfigFile)) {
     try {

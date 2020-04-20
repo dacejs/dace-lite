@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-* 增加 inspec 调试配置 ([94f5b55](https://github.com/dacejs/dace-lite/commit/94f5b55a9d61a4a25243ce2daa06cf8cf027794e))
+* 增加 inspect 调试配置 ([94f5b55](https://github.com/dacejs/dace-lite/commit/94f5b55a9d61a4a25243ce2daa06cf8cf027794e))
 
 ### [1.0.3](https://github.com/dacejs/dace-lite/compare/v1.0.2...v1.0.3) (2020-04-16)
 
@@ -27,13 +27,5 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 * 修复 redux connect 装饰器报错的问题 ([7077c00](https://github.com/dacejs/dace-lite/commit/7077c006b4792981c5ed1b17edecd498fab88715))
+  支持在运行时传入 `process.env` 。
 
-### [1.0.2](https://github.com/dacejs/dace-lite/compare/v1.0.1...v1.0.2) (2020-04-16)
-
-### [1.0.1](https://github.com/dacejs/dace-lite/compare/v1.0.1-alpha.2...v1.0.1) (2020-04-15)
-
-### [1.0.1-alpha.2](https://github.com/dacejs/dace-lite/compare/v1.0.1-alpha.1...v1.0.1-alpha.2) (2020-04-15)
-
-### [1.0.1-alpha.1](https://github.com/dacejs/dace-lite/compare/v1.0.1-alpha.0...v1.0.1-alpha.1) (2020-04-15)
-
-### 1.0.1-alpha.0 (2020-04-15)

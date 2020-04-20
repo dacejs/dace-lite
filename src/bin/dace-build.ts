@@ -93,7 +93,7 @@ function build(previousFileSizes: OpaqueFileSizes) {
   });
 }
 
-measureFileSizesBeforeBuild(DACE_PATH_CLIENT_DIST)
+measureFileSizesBeforeBuild(DACE_PATH_CLIENT_DIST!)
   .then((previousFileSizes: OpaqueFileSizes) => build(previousFileSizes))
   .then(
     ({ stats, previousFileSizes, warnings }: any) => {
@@ -106,7 +106,7 @@ measureFileSizesBeforeBuild(DACE_PATH_CLIENT_DIST)
         console.log(chalk.green('Compiled successfully.\n'));
       }
       console.log('File sizes after gzip:\n');
-      printFileSizesAfterBuild(stats, previousFileSizes, DACE_PATH_CLIENT_DIST);
+      printFileSizesAfterBuild(stats, previousFileSizes, DACE_PATH_CLIENT_DIST!);
       console.log();
     },
     (err: Error) => {

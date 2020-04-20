@@ -8,6 +8,14 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { StatsWriterPlugin } from 'webpack-stats-plugin';
 import getEntries from '../utils/get-entries';
 
+interface CreateConfigOptions {
+  webpack: any;
+  daceConfig: any;
+  target: string;
+  isDev: boolean;
+  program: any;
+}
+
 export default ({
   webpack,
   daceConfig,
@@ -151,11 +159,11 @@ export default ({
 
   if (isNode) {
     config.entry = [
-      path.resolve(DACE_PATH_SERVER_ENTRY)
+      path.resolve(DACE_PATH_SERVER_ENTRY!)
     ];
 
     config.output = {
-      path: path.resolve(DACE_PATH_SERVER_DIST),
+      path: path.resolve(DACE_PATH_SERVER_DIST!),
       filename: 'server.js',
       libraryTarget: 'commonjs2'
     };
@@ -214,8 +222,8 @@ export default ({
         }),
         // 不监视编译输出目录，避免重新压缩死循环
         new webpack.WatchIgnorePlugin([
-          path.resolve(DACE_PATH_CLIENT_DIST),
-          path.resolve(DACE_PATH_SERVER_DIST)
+          path.resolve(DACE_PATH_CLIENT_DIST!),
+          path.resolve(DACE_PATH_SERVER_DIST!)
         ])
       ];
     }
@@ -224,7 +232,7 @@ export default ({
   if (isWeb) {
     config.entry = getEntries();
     config.output = {
-      path: path.resolve(DACE_PATH_CLIENT_DIST),
+      path: path.resolve(DACE_PATH_CLIENT_DIST!),
       libraryTarget: 'var'
     };
 
@@ -232,8 +240,8 @@ export default ({
       ...config.plugins,
       new CleanWebpackPlugin({
         cleanOnceBeforeBuildPatterns: [
-          path.resolve(DACE_PATH_CLIENT_DIST),
-          path.resolve(DACE_PATH_SERVER_DIST)
+          path.resolve(DACE_PATH_CLIENT_DIST!),
+          path.resolve(DACE_PATH_SERVER_DIST!)
         ]
       }),
       new StatsWriterPlugin({
@@ -298,7 +306,7 @@ export default ({
         hot: true,
         port: devServerPort,
         quiet: false,
-        writeToDisk: (filepath: string) => filepath.endsWith(DACE_STATS_JSON),
+        writeToDisk: (filepath: string) => filepath.endsWith(DACE_STATS_JSON!),
         watchOptions: {
           ignored: /node_modules/
         }

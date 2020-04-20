@@ -10,6 +10,14 @@
  * @return {string} 首屏 HTML
  */
 
+interface DocumentOptions {
+  head: ReactHelmet.HelmetData;
+  markup: string;
+  state: string;
+  styleTags: string;
+  scriptTags: string;
+}
+
 export default ({
   head,
   markup,
