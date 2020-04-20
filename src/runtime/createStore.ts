@@ -32,7 +32,6 @@ export default (
   const store: any = createStore(
     initialReducer,
     initialState,
-    // TODO: 不打包到线上环境
     composeWithDevTools(applyMiddleware(...middlewares))
   );
 
