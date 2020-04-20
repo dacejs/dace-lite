@@ -15,7 +15,12 @@ interface SsrMiddlewareOptions {
 
 // eslint-disable-next-line max-len
 export default (options: SsrMiddlewareOptions) => async (req: Express.Request, res: Express.Response) => {
-  const { DACE_SSR, DACE_PATH_STATS_JSON, DACE_SCRIPT_CROSSORIGIN } = process.env;
+  const {
+    DACE_SSR,
+    DACE_PATH_STATS_JSON,
+    DACE_SCRIPT_CROSSORIGIN
+  } = process.env;
+  // const statsJson = path.
   const { Component, chunkName, reducer } = options;
   const isSSR = DACE_SSR === 'true';
   const isCrossOrigin = DACE_SCRIPT_CROSSORIGIN === 'true';
@@ -36,7 +41,7 @@ export default (options: SsrMiddlewareOptions) => async (req: Express.Request, r
   let webpackStats: any;
   try {
     // eslint-disable-next-line global-require
-    webpackStats = require(DACE_PATH_STATS_JSON!);
+    webpackStats = require(DACE_PATH_STATS_JSON);
   } catch (error) {
     console.error(`Not found '${DACE_PATH_STATS_JSON}'`);
     process.exit(1);

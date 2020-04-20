@@ -21,7 +21,8 @@
   "author": "",
   "license": "ISC",
   "files": [
-    "dist"
+    "dist",
+    "env"
   ],
   "engines": {
     "node": ">= 12"

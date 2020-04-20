@@ -18,17 +18,16 @@ export default ({
   const {
     DACE_HOST,
     DACE_PORT,
+    DACE_STATS_JSON,
     DACE_PUBLIC_PATH,
     DACE_VENDORS,
     DACE_LONG_TERM_CACHING,
     DACE_LONG_TERM_CACHING_LENGTH,
     DACE_SERVER_MINIMIZE,
     DACE_CLIENT_MINIMIZE,
-    DACE_PATH_POSTCSS_RC,
     DACE_PATH_SERVER_ENTRY,
     DACE_PATH_CLIENT_DIST,
     DACE_PATH_SERVER_DIST,
-    DACE_PATH_STATS_JSON,
     DACE_INSPECT_BRK,
     DACE_INSPECT
   } = process.env;
@@ -43,26 +42,17 @@ export default ({
     return '';
   };
 
-  // 将 process.env 中所有以 DACE_ 开头的变量传递到代码运行时环境
-  const daceEnv = Object.keys(process.env)
-    .filter((key) => key.startsWith('DACE_'))
-    .reduce<{
-      [key: string]: string
-    }>((envs, key) => {
-      envs[`process.env.${key}`] = JSON.stringify(process.env[key]);
-      return envs;
-    }, {});
-
   // 获取 postcss 配置
-  const hasPostcssRc = fs.existsSync(DACE_PATH_POSTCSS_RC);
+  const postcssRc = path.resolve('postcss.config.js');
+  const hasPostcssRc = fs.existsSync(postcssRc);
   const mainPostcssOptions: any = { ident: 'postcss' };
   if (hasPostcssRc) {
-    if (isWeb) {
-      console.log('Using custom postcss.config.js');
-    }
+    // if (isWeb) {
+    //   console.log('Using custom postcss.config.js');
+    // }
     // 只能指定 postcss.config.js 所在的目录
     mainPostcssOptions.config = {
-      path: path.dirname(DACE_PATH_POSTCSS_RC)
+      path: path.dirname(postcssRc)
     };
   } else {
     mainPostcssOptions.plugins = [
@@ -77,7 +67,6 @@ export default ({
       extensions: ['.js', '.jsx', '.ts', '.tsx']
     },
     plugins: [
-      new webpack.DefinePlugin(daceEnv)
     ],
     module: {
       rules: [
@@ -161,10 +150,12 @@ export default ({
   };
 
   if (isNode) {
-    config.entry = [DACE_PATH_SERVER_ENTRY];
+    config.entry = [
+      path.resolve(DACE_PATH_SERVER_ENTRY)
+    ];
 
     config.output = {
-      path: DACE_PATH_SERVER_DIST,
+      path: path.resolve(DACE_PATH_SERVER_DIST),
       filename: 'server.js',
       libraryTarget: 'commonjs2'
     };
@@ -191,8 +182,6 @@ export default ({
 
     config.plugins = [
       ...config.plugins,
-      // 将定义环境变量传递到运行时环境
-      // new webpack.DefinePlugin(daceEnv),
       // 防止 node 编译时打成多个包
       new webpack.optimize.LimitChunkCountPlugin({
         maxChunks: 1
@@ -224,7 +213,10 @@ export default ({
           nodeArgs
         }),
         // 不监视编译输出目录，避免重新压缩死循环
-        new webpack.WatchIgnorePlugin([DACE_PATH_CLIENT_DIST, DACE_PATH_SERVER_DIST])
+        new webpack.WatchIgnorePlugin([
+          path.resolve(DACE_PATH_CLIENT_DIST),
+          path.resolve(DACE_PATH_SERVER_DIST)
+        ])
       ];
     }
   }
@@ -232,17 +224,20 @@ export default ({
   if (isWeb) {
     config.entry = getEntries();
     config.output = {
-      path: DACE_PATH_CLIENT_DIST,
+      path: path.resolve(DACE_PATH_CLIENT_DIST),
       libraryTarget: 'var'
     };
 
     config.plugins = [
       ...config.plugins,
       new CleanWebpackPlugin({
-        cleanOnceBeforeBuildPatterns: [DACE_PATH_CLIENT_DIST, DACE_PATH_SERVER_DIST]
+        cleanOnceBeforeBuildPatterns: [
+          path.resolve(DACE_PATH_CLIENT_DIST),
+          path.resolve(DACE_PATH_SERVER_DIST)
+        ]
       }),
       new StatsWriterPlugin({
-        filename: path.basename(DACE_PATH_STATS_JSON),
+        filename: DACE_STATS_JSON,
         stats: {
           all: false,
           assets: true,
@@ -303,9 +298,9 @@ export default ({
         hot: true,
         port: devServerPort,
         quiet: false,
-        writeToDisk: (filepath: string) => filepath.endsWith(path.basename(DACE_PATH_STATS_JSON)),
+        writeToDisk: (filepath: string) => filepath.endsWith(DACE_STATS_JSON),
         watchOptions: {
-          // ignored: /node_modules/
+          ignored: /node_modules/
         }
       };
 

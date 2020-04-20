@@ -29,9 +29,6 @@ interface DaceDefaultEnv {
   // web server 端口
   DACE_PORT: string;
 
-  // 编译产物对外服务访问使用的 URL
-  DACE_PUBLIC_PATH: string;
-
   // 是否启用服务器端渲染
   DACE_SSR: string;
 
@@ -56,26 +53,6 @@ interface DaceDefaultEnv {
   // 静态文件目录，多个目录用逗号隔开
   DACE_STATIC: string;
 
-  // 以 `DACE_PATH_` 开头的变量会转换成绝对路径
-  // 工程根目录
-  DACE_PATH_ROOT: string;
-
-  // dace 配置文件位置
-  // dace-plugin-* 会用到
-  DACE_PATH_CONFIG: string;
-
-  // postcss 配置文件位置
-  DACE_PATH_POSTCSS_RC: string;
-
-  // profiles 目录位置
-  DACE_PATH_PROFILES: string;
-
-  // src 目录位置
-  DACE_PATH_SRC: string;
-
-  // pages 目录位置
-  DACE_PATH_PAGES: string;
-
   // 服务器端编译入口文件位置
   DACE_PATH_SERVER_ENTRY: string;
 
@@ -85,8 +62,14 @@ interface DaceDefaultEnv {
   // 服务器端编译产物输出目录位置
   DACE_PATH_SERVER_DIST: string;
 
+  // 客户端编译输出 stats 文件名称
+  DACE_STATS_JSON: string;
+
   // 客户端编译输出 stats 文件位置
   DACE_PATH_STATS_JSON: string;
+
+  // 编译产物对外服务访问使用的 URL
+  DACE_PUBLIC_PATH: string;
 }
 
 

@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import chalk from 'chalk';
 import webpack from 'webpack';
 import program from 'commander';
@@ -7,20 +8,9 @@ import { measureFileSizesBeforeBuild, printFileSizesAfterBuild, OpaqueFileSizes 
 import formatWebpackMessages from 'react-dev-utils/formatWebpackMessages';
 import createConfig from '../webpack/createConfig';
 
-// TODO 提取到 index.d.ts
-// declare global {
-//   namespace NodeJS {
-//     interface Process {
-//       noDeprecation: boolean;
-//     }
-//   }
-// }
-
-// process.noDeprecation = true; // 关闭告警信息，避免对进度条显示产生干扰
-
 program.parse(process.argv);
 
-const { DACE_PATH_CONFIG, DACE_PATH_CLIENT_DIST } = process.env;
+const { DACE_PATH_CLIENT_DIST } = process.env;
 
 // 捕捉 webpack 编译过程中的错误
 function compile(config: webpack.Configuration, cb: Function) {
@@ -39,10 +29,11 @@ function compile(config: webpack.Configuration, cb: Function) {
 function build(previousFileSizes: OpaqueFileSizes) {
   let daceConfig = {};
 
-  if (fs.existsSync(DACE_PATH_CONFIG)) {
+  const daceConfigFile = path.resolve('dace.config.js');
+  if (fs.existsSync(daceConfigFile)) {
     try {
       // eslint-disable-next-line global-require
-      daceConfig = require(DACE_PATH_CONFIG);
+      daceConfig = require(daceConfigFile);
     } catch (e) {
       clearConsole();
       console.error(`Invalid dace.config.js file. ${e}`);

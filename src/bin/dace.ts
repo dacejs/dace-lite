@@ -3,7 +3,7 @@
 import program from 'commander';
 import '../utils/check-node-version';
 import '../utils/check-env-profile';
-import '../utils/env';
+import '../runtime/server/set-env';
 
 program
   .option('-s, --silent', '禁用所有输出信息')

@@ -1,24 +1,13 @@
 import fs from 'fs';
+import path from 'path';
 import program from 'commander';
 import DevServer from 'webpack-dev-server';
 import webpack from 'webpack';
 import createConfig from '../webpack/createConfig';
 
-// TODO 提取到 index.d.ts
-// declare global {
-//   namespace NodeJS {
-//     interface Process {
-//       noDeprecation: boolean;
-//     }
-//   }
-// }
-
 program
-  // .option('-s, --silent', '禁用所有输出信息')
   .option('-v, --verbose', '显示详细日志信息')
   .parse(process.argv);
-
-// process.noDeprecation = true; // 关闭告警信息，避免对进度条显示产生干扰
 
 // 捕获 webpack 执行过程中的错误
 function compile(config: webpack.Configuration) {
@@ -33,13 +22,14 @@ function compile(config: webpack.Configuration) {
 }
 
 function main() {
-  const { DACE_PATH_CONFIG, DACE_PORT } = process.env;
+  const { DACE_PORT } = process.env;
+  const daceConfigFile = path.resolve('dace.config.js');
   let daceConfig:DaceConfigOptions = {};
 
-  if (fs.existsSync(DACE_PATH_CONFIG)) {
+  if (fs.existsSync(daceConfigFile)) {
     try {
       // eslint-disable-next-line global-require
-      daceConfig = require(DACE_PATH_CONFIG);
+      daceConfig = require(daceConfigFile);
     } catch (e) {
       console.error('Invalid dace.config.js file.', e);
       process.exit(1);
