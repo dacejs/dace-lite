@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/dacejs/dace-lite/compare/v1.0.4...v1.1.0) (2020-04-20)
+
+
+### Features
+
+* 修复环境变量传递方式 ([e0b3157](https://github.com/dacejs/dace-lite/commit/e0b3157ad4417cb92bcd318b72496080d3d46ed6))
+
+
+### Bug Fixes
+
+* DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead ([a82a911](https://github.com/dacejs/dace-lite/commit/a82a911ff039b1be1912fa5de5244f13990b55f6))
+
 ### [1.0.4](https://github.com/dacejs/dace-lite/compare/v1.0.3...v1.0.4) (2020-04-17)
 
 
