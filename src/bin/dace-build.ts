@@ -6,7 +6,7 @@ import program from 'commander';
 import clearConsole from 'react-dev-utils/clearConsole';
 import { measureFileSizesBeforeBuild, printFileSizesAfterBuild, OpaqueFileSizes } from 'react-dev-utils/FileSizeReporter';
 import formatWebpackMessages from 'react-dev-utils/formatWebpackMessages';
-import createConfig from '../webpack/createConfig';
+import createConfig from '../webpack/create-config';
 
 program.parse(process.argv);
 

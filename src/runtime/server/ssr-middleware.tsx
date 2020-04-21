@@ -4,7 +4,7 @@ import { renderToString } from 'react-dom/server';
 import { Provider } from 'react-redux';
 import serialize from 'serialize-javascript';
 import Express from 'express';
-import createStore from '../createStore';
+import createStore from '../create-store';
 import document from './document';
 
 interface SsrMiddlewareOptions {
@@ -41,7 +41,7 @@ export default (options: SsrMiddlewareOptions) => async (req: Express.Request, r
   let webpackStats: any;
   try {
     // eslint-disable-next-line global-require
-    webpackStats = require(DACE_PATH_STATS_JSON);
+    webpackStats = require(DACE_PATH_STATS_JSON!);
   } catch (error) {
     console.error(`Not found '${DACE_PATH_STATS_JSON}'`);
     process.exit(1);

@@ -3,7 +3,7 @@ import path from 'path';
 import program from 'commander';
 import DevServer from 'webpack-dev-server';
 import webpack from 'webpack';
-import createConfig from '../webpack/createConfig';
+import createConfig from '../webpack/create-config';
 
 // interface DaceConfigOptions {
 //   modify?: Function

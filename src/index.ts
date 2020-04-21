@@ -8,6 +8,6 @@
  *   import ssrMiddleware from 'dace-lite/runtime/server/ssrMiddleware';
  */
 export { Helmet as Head } from 'react-helmet';
-export { default as getInitialProps } from './runtime/getInitialProps';
-export { default as createStore } from './runtime/createStore';
+export { default as getInitialProps } from './runtime/get-initial-props';
+export { default as createStore } from './runtime/create-store';
 export { default as connect } from './runtime/connect';
