@@ -41,7 +41,6 @@ export default (options: GetInitialPropsOptions) => (Target: any) => class exten
    * 数据回来后通过 redux 更新 store
    *
    * @param {object} options
-   * @param {function} options.reducer 需要动态绑定的 reducer
    * @param {function|[function]} options.promise 获取数据的 fetch 函数
    *
    * @return {Promise}
